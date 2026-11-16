@@ -40,7 +40,7 @@ from typing import Optional
 
 from .cografi import cografi_uygula
 from .sayilar import (
-    bulunma_eki, harf_oku, ondalik_oku, rakamlari_tek_tek, sayi_oku,
+    bulunma_eki, harf_oku, harfleri_oku, ondalik_oku, rakamlari_tek_tek, sayi_oku,
     sayiyi_coz, sira_oku, turkce_kucuk,
 )
 from .teknik import TEKNIK_KISALTMALAR, okunabilir, teknik_uygula
@@ -135,7 +135,7 @@ _UNICODE_BOSLUK = re.compile(r"[   -   　]")
 
 
 def _harf_harf(kelime: str) -> str:
-    return " ".join(harf_oku(h) for h in kelime)
+    return harfleri_oku(kelime)
 
 
 # Komşu kelimeye bakarken yalnızca yakın çevre taranır; bütün ön metni taramak
@@ -188,7 +188,7 @@ def _parca_oku(parca: str) -> str:
 
 
 def _alan_adi_oku(alan: str) -> str:
-    """"ornek.com.tr" -> "ornek nokta com nokta te re". İki harfli ülke uzantısı harf harf."""
+    """"ornek.com.tr" -> "ornek nokta com nokta tere". İki harfli ülke uzantısı harf harf."""
     alan, _, port = alan.partition(":")
     etiketler = alan.split(".")
     okunus = []
@@ -230,8 +230,8 @@ def _url_degistir(e: re.Match) -> str:
 def eposta_ve_adres_oku(metin: str) -> str:
     """E-posta ve web adreslerini okunur hale getirir.
 
-    "ali.veli@ornek.com.tr" -> "ali nokta veli et ornek nokta com nokta te re"
-    "https://www.ornek.gov.tr/harita" -> "ornek nokta gov nokta te re bölü harita"
+    "ali.veli@ornek.com.tr" -> "ali nokta veli et ornek nokta com nokta tere"
+    "https://www.ornek.gov.tr/harita" -> "ornek nokta gov nokta tere bölü harita"
     """
     m = _EPOSTA.sub(
         lambda e: f"{_parca_oku(e.group(1))} et {_alan_adi_oku(e.group(2).lower())}", metin
@@ -526,7 +526,7 @@ def _buyuk_harfli_cumlede(e: re.Match) -> bool:
 
 def _ek_ekle(okunus: str, ek: str) -> str:
     """Kısaltmanın okunuşuna eki uydurur: ünlü uyumu ve ünlüyle biten okunuşta kaynaştırma harfi ("CBS'e" →
-    "ce be seye", 0.1.4'e kadar "ce be see"). Yazarın eki okunuşa göre yazdığı durumda değişmez ("TBMM'de")."""
+    "cebeseye", 0.1.4'e kadar "ce be see"). Yazarın eki okunuşa göre yazdığı durumda değişmez ("TBMM'de")."""
     if not ek:
         return okunus
     son = okunus.rsplit(" ", 1)[-1]
@@ -546,11 +546,11 @@ def _kisaltma_oku(e: re.Match) -> str:
         return e.group(0)
     if okunabilir(kelime):
         return turkce_kucuk(kelime) + ek             # "EVREN'in" -> "evrenin", "TÜİK" -> "tüik" (0.1.4)
-    return _ek_ekle(_harf_harf(kelime), ek)          # "TBMM'de" -> "te be me mede", "CBS'e" -> "ce be seye"
+    return _ek_ekle(_harf_harf(kelime), ek)          # "TBMM'de" -> "tebememede", "CBS'e" -> "cebeseye"
 
 
 def kisaltmalari_oku(metin: str) -> str:
-    """2–5 harfli büyük harfli kısaltmaları harf harf okur: "TRT" -> "te re te"."""
+    """2–5 harfli büyük harfli kısaltmaları harf harf okur: "TRT" -> "terete"."""
     return _KISALTMA_ADAYI.sub(_kisaltma_oku, metin)
 
 

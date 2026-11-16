@@ -1,5 +1,14 @@
 # Değişiklikler
 
+## 0.1.5 — kısaltmalar bitişik okunur
+
+- Harf harf okunan kısaltma tek sözcük gibi bitişik yazılır: `TBMM'de` → "tebememede", `TR` → "tere", `CBS'e` →
+  "cebeseye" (önceden "te be me mede", "te re", "ce be seye"). Ayrık harf adlarında ses modeli ünlüleri yutuyordu
+  ("tbmmede", "ap elli", "sg ka"); seslen-tts ile 18 kısaltma cümlesi × 4 seste okunuş denetiminde takılan 21 → 5.
+  Alan adı uzantısı ("ornek.com.tr" → "… tere"), IBAN başı ve teknik metindeki ünsüz kümesi ("seslen-tr") de aynı.
+  Ünsüzle biten ya da iki sözcüklü harf adı ayrı kalır (`XQ` → "iks kü", `Ğ` → "yumuşak ge").
+- Yeni: `harfleri_oku(kelime)`.
+
 ## 0.1.4 — belge ve teknik metin
 
 Gerçek makaleler (Markdown) seslendirilirken çıkan hatalardan:

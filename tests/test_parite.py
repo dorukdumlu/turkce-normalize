@@ -58,7 +58,7 @@ class TemelNormalizasyon(unittest.TestCase):
 
     def test_iban_harf_harf_okunur(self):
         cikti = normalize("IBAN numaranız TR33 0006 1005 9700 6410 0000 01 olarak kayıtlı.")
-        self.assertRegex(cikti, r"^i ban numaranız te re üç üç sıfır sıfır sıfır altı")
+        self.assertRegex(cikti, r"^i ban numaranız tere üç üç sıfır sıfır sıfır altı")
 
     def test_normalize_edilen_metinde_rakam_kalmaz(self):
         cumleler = [

@@ -28,7 +28,7 @@ SIRA = {
 }
 
 #: Harflerin Türkçe okunuşu. Kısaltma, IBAN, pafta kodu ve alan adı
-#: uzantısı ("tr" -> "te re") hep bu tabloyu kullanır.
+#: uzantısı ("tr" -> "tere") hep bu tabloyu kullanır (bitişik okunuş: harfleri_oku).
 HARF_OKUNUSU = {
     "A": "a", "B": "be", "C": "ce", "Ç": "çe", "D": "de", "E": "e", "F": "fe", "G": "ge",
     # K: kısaltmalarda yaygın okunuş "ka" (KDV → ka de ve, PKK → pe ka ka); TDK alfabesinde "ke".
@@ -55,6 +55,20 @@ def turkce_kucuk(s: str) -> str:
 def harf_oku(harf: str) -> str:
     """Tek harfi okur: "K" -> "ka", "ğ" -> "yumuşak ge". Bilinmeyen harf küçülür."""
     return HARF_OKUNUSU.get(turkce_buyuk(harf), turkce_kucuk(harf))
+
+
+def harfleri_oku(kelime: str) -> str:
+    """Kısaltmayı harf harf, tek sözcük gibi bitişik okur: "TBMM" -> "tebememe", "TR" -> "tere". İki sözcüklü harf
+    adı ve ünsüzle biten harf adının ardı ayrı kalır ("AĞ" -> "a yumuşak ge", "XQ" -> "iks kü"). 0.1.5'e kadar harf
+    adları boşlukla ayrıydı ("te be me me"); ses modeli ayrık harf adlarında ünlüleri yutuyordu ("tbmmede", "ap elli"),
+    bitişikte okunuş denetiminde takılan 21 → 5 / 72."""
+    okunus = ""
+    for h in kelime:
+        o = harf_oku(h)
+        if okunus and okunus[-1] not in "aeıioöuü ":
+            okunus += " "
+        okunus += f" {o} " if " " in o else o
+    return " ".join(okunus.split())
 
 
 def _tamsayi(deger: Sayi) -> int:

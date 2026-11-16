@@ -53,7 +53,7 @@ def _satir_ici(s: str) -> str:
     s = _SATIR_ICI_KOD.sub(r"\1", s)
     s = _KALIN.sub(r"\2", s)
     s = _EGIK.sub(r"\2", s)
-    # yalnız alan adı, okunur hâliyle ("evren nokta ornek nokta org nokta te re"): noktalı yazım cümle bölücüde
+    # yalnız alan adı, okunur hâliyle ("evren nokta ornek nokta org nokta tere"): noktalı yazım cümle bölücüde
     # "evren." "ornek." diye ayrı cümlelere bölünüyordu
     s = _URL.sub(lambda e: eposta_ve_adres_oku(e.group(1).removeprefix("www.").rstrip(".,;:").lower()), s)
     # şemasız adres ("evren.ssyz.org.tr/users/u43bd…"): yolu da okunmaz, yalnız alan adı (03.11: kimlik okunuyordu)

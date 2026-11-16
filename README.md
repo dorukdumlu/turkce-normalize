@@ -37,7 +37,7 @@ normalize("XX. yüzyılda II. Abdülhamit 1876-1909 arasında hüküm sürdü.")
 # 'yirminci yüzyılda ikinci Abdülhamit bin sekiz yüz yetmiş altı ile bin dokuz yüz dokuz arasında hüküm sürdü.'
 
 normalize("TBMM'de TRT ve NATO konuşuldu.")
-# 'te be me mede te re te ve nato konuşuldu.'
+# 'tebememede terete ve nato konuşuldu.'
 ```
 
 Komut satırından:
@@ -60,7 +60,7 @@ kurallarını kapatır (`cografi=False`); `--version` sürümü yazar.
 normalize(metin,
           telaffuz=None,             # telaffuz sözlüğü (varsayılan: gömülü CBS/yazılım sözlüğü)
           cografi=True,              # koordinat, ölçek, pafta, EPSG kuralları
-          kisaltma_harf_harf=True)   # "TBMM" -> "te be me me"
+          kisaltma_harf_harf=True)   # "TBMM" -> "tebememe"
 ```
 
 ### Sayı okuma
@@ -145,16 +145,16 @@ Eşleşme büyük/küçük harf duyarsızdır; ek almış kelimeler (`APIyi`) b�
 | Tarih | `15.03.2026`, `15/03/2026` | on beş mart iki bin yirmi altı |
 | Saat | `14:05`, `09:00'da` | on dört sıfır beş, dokuzda |
 | Telefon | `0212 555 44 33`, `0212-555-44-33` | sıfır iki bir iki beş beş beş … |
-| IBAN | `TR33 0006 …` | te re üç üç sıfır sıfır … |
+| IBAN | `TR33 0006 …` | tere üç üç sıfır sıfır … |
 | Kısaltma (sözlük) | `KDV`, `Dr.`, `vb.`, `Mah.` | katma değer vergisi, doktor, ve benzeri, mahallesi |
 | Birim | `12 km`, `85 m²`, `5 kg` | on iki kilometre, … metrekare, … kilogram |
 | **Roma rakamı** | `XX. yüzyıl`, `II. Abdülhamit` | yirminci yüzyıl, ikinci Abdülhamit |
 | **Kesir** | `1/2 kilo`, `1/4`, `3/4`, `1/6`, `2 1/2` | yarım kilo, çeyrek, dörtte üç, altıda bir, iki buçuk |
 | **Aralık** | `3-5 kişi`, `2020-2025`, `3-5. maddeler` | üç beş kişi, … ile …, üçüncü ile beşinci |
 | **Eksi sayı** | `-5 derece` | eksi beş derece |
-| **Büyük harfli kısaltma** | `TBMM'de`, `CHP`, `NATO` | te be me mede, ce he pe, nato |
-| **E-posta** | `ali.veli@ornek.com.tr` | ali nokta veli et ornek nokta com nokta te re |
-| **Web adresi** | `https://www.ornek.gov.tr/harita` | ornek nokta gov nokta te re bölü harita |
+| **Büyük harfli kısaltma** | `TBMM'de`, `CHP`, `NATO` | tebememede, cehepe, nato |
+| **E-posta** | `ali.veli@ornek.com.tr` | ali nokta veli et ornek nokta com nokta tere |
+| **Web adresi** | `https://www.ornek.gov.tr/harita` | ornek nokta gov nokta tere bölü harita |
 | **Simgeler** | `2+2=4`, `&`, `25°C`, `±0,5` | iki artı iki eşittir dört, ve, yirmi beş derece, artı eksi … |
 | Koordinat | `39.9334, 32.8597` | enlem otuz dokuz virgül dokuz üç üç dört, boylam … |
 | Derece-dakika-saniye | `39°56'12"K` | otuz dokuz derece elli altı dakika on iki saniye kuzey |
@@ -208,13 +208,15 @@ olarak okunur:
 
 ### Büyük harfli kısaltmalar
 
-- 2–5 büyük harften oluşan tokenlar Türkçe harf adlarıyla okunur:
-  `TBMM` → te be me me, `AKP` → a ka pe. Harf adları: a, be, ce, çe, de, e, fe,
+- 2–5 büyük harften oluşan tokenlar Türkçe harf adlarıyla, tek sözcük gibi bitişik okunur:
+  `TBMM` → tebememe, `AKP` → akape (0.1.5'e kadar ayrıktı, "te be me me"; ses modelleri ayrık harf adlarında
+  ünlüleri yutuyordu). Ünsüzle biten ya da iki sözcüklü harf adı ayrı kalır: `XQ` → iks kü. `harfleri_oku`
+  aynı işi tek başına yapar. Harf adları: a, be, ce, çe, de, e, fe,
   ge, yumuşak ge, he, ı, i, je, ka, le, me, ne, o, ö, pe, re, se, şe, te, u, ü,
   ve, ye, ze; Q kü, W çift ve, X iks. K kısaltmalardaki yaygın okunuşla "ka"dır
   (TDK alfabesinde "ke"); `HARF_OKUNUSU["K"] = "ke"` ile değiştirilebilir.
-- Kesmeden sonraki ek okunuşa bitişir: `TBMM'de` → te be me mede,
-  `ABD'li` → a be deli.
+- Kesmeden sonraki ek okunuşa bitişir: `TBMM'de` → tebememede,
+  `ABD'li` → abedeli.
 - Kelime gibi okunan kısaltmalar (`KELIME_GIBI_OKUNANLAR`) harf harf okunmaz,
   modelin hecelememesi için küçük harfe çevrilir: NATO, NASA, AFAD, TOKİ,
   BOTAŞ, TEDAŞ, İSKİ, ASKİ, ODTÜ, YÖK, TÜİK, İŞKUR, MİT, ASELSAN, TÜBİTAK,

@@ -105,7 +105,7 @@ _BIRIM = re.compile(r"(?<=\d)[ \t]?(" + "|".join(sorted(map(re.escape, BIRIM_OKU
                     + r")(?![^\W_]|[²³])")
 #: Ondalıklı aralık "2,5–5 katı" (tamsayı aralıklarını normalize.araliklari_oku okur).
 _ONDALIK_ARALIK = re.compile(r"(?<![\d.,])(\d+,\d+|\d+)[ \t]?[–-][ \t]?(\d+,\d+|\d+)(?![\d.,]*\d)")
-#: Ünlüsüz küçük harf kümesi Türkçe sözcük olamaz, harf harf okunur ("seslen-tr" → "seslen te re"); birim ve
+#: Ünlüsüz küçük harf kümesi Türkçe sözcük olamaz, harf harf okunur ("seslen-tr" → "seslen tere"); birim ve
 #: noktalı kısaltmalar (km, kg, vb.) sonraki kurallara kalır.
 _UNSUZ_KUME = re.compile(r"(?<![^\W_]|['’])([b-df-hj-np-tv-zçğş]{2,4})(?![^\W_]|['’]?\.)")
 _UNSUZ_KALIR = {"km", "cm", "mm", "kg", "gr", "lt", "ml", "mg", "kb", "mb", "gb", "tb", "ms", "kwh", "kw", "mw",
@@ -145,7 +145,7 @@ def _ayir(e: re.Match) -> str:
 
 def teknik_uygula(metin: str) -> str:
     """Sürüm, sözcük içi tire, harf-rakam bitişiği, birim ve simgeler (bkz. modül açıklaması)."""
-    from .sayilar import harf_oku
+    from .sayilar import harf_oku, harfleri_oku
     m = _SURUM.sub(_surum, metin)
     m = _KARISIK_KISALTMA.sub(lambda e: e.group(1) if e.group(1).lower() in TEKNIK_TERIMLER
                               else e.group(1).replace("i", "İ").replace("ı", "I").upper(), m)
@@ -157,7 +157,7 @@ def teknik_uygula(metin: str) -> str:
     m = _CARPI.sub(" çarpı ", m)
     m = _ONDALIK_ARALIK.sub(lambda e: f"{e.group(1)} ile {e.group(2)}" if "," in e.group(0) else e.group(0), m)
     m = _UNSUZ_KUME.sub(lambda e: e.group(1) if e.group(1) in _UNSUZ_KALIR
-                        else " ".join(harf_oku(h) for h in e.group(1)), m)
+                        else harfleri_oku(e.group(1)), m)
     m = _TEK_HARF.sub(lambda e: harf_oku(e.group(1) or e.group(2)), m)    # tek başına ünsüz: "31 b" → "31 be"
     m = _SOZCUK_ARTI.sub(" ve ", m)
     return _OK.sub(", ", m)

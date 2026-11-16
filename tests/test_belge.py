@@ -78,11 +78,11 @@ class Belge(unittest.TestCase):
         self.assertIn("İkinci madde: ayrıntı.", self.p)
 
     def test_adres_yalniz_alan_adi(self):
-        self.assertIn("Veri: evren nokta ornek nokta org nokta te re.", self.p)
+        self.assertIn("Veri: evren nokta ornek nokta org nokta tere.", self.p)
 
     def test_semasiz_adresin_yolu_okunmaz(self):
         p = paragraflar("Veri: evren.ssyz.org.tr/users/u43bd0650c87e ve huggingface.co/datasets/mvdelibas/TR-CBS")
-        self.assertEqual(p, ["Veri: evren nokta ssyz nokta org nokta te re ve huggingface nokta ce o."])
+        self.assertEqual(p, ["Veri: evren nokta ssyz nokta org nokta tere ve huggingface nokta ceo."])
 
     def test_okunur_metin_paragraf_boslugu(self):
         self.assertIn("\n\n", okunur_metin(MAKALE))
@@ -99,7 +99,7 @@ class Belge(unittest.TestCase):
 class Teknik(unittest.TestCase):
     def test_teknik_kisaltma(self):
         self.assertEqual(normalize("LLM'ler ve API"), "elelemler ve ey pi ay")
-        self.assertEqual(normalize("CBS ile SQL"), "ce be se ile es kü el")
+        self.assertEqual(normalize("CBS ile SQL"), "cebese ile es kü el")
 
     def test_sozcuk_ici_tire(self):
         self.assertEqual(normalize("Sentinel-2 ve e-Devlet"), "Sentinel iki ve e Devlet")
@@ -124,16 +124,16 @@ class Teknik(unittest.TestCase):
 
     def test_kucuk_harfli_teknik_ad(self):
         self.assertEqual(normalize("seslen-tts PyPI'da"), "seslen te te se pay pi ayda")
-        self.assertEqual(normalize("seslen-tr altında"), "seslen te re altında")
+        self.assertEqual(normalize("seslen-tr altında"), "seslen tere altında")
         self.assertEqual(normalize("5 km yol, vb. şeyler"), "beş kilometre yol, ve benzeri şeyler")
 
     def test_okunabilir_buyuk_harf_sozcuk_gibi(self):
         self.assertEqual(normalize("EVREN'in verisi"), "evrenin verisi")
         self.assertEqual(normalize("TÜİK ve ODTÜ"), "tüik ve odtü")
-        self.assertEqual(normalize("TBMM, KPSS, EPDK, İETT"), "te be me me, ka pe se se, e pe de ka, i e te te")
+        self.assertEqual(normalize("TBMM, KPSS, EPDK, İETT"), "tebememe, kapesese, epedeka, ietete")
 
     def test_unluyle_biten_okunusa_kaynastirma(self):
-        self.assertEqual(normalize("CBS'e bağlamak"), "ce be seye bağlamak")
+        self.assertEqual(normalize("CBS'e bağlamak"), "cebeseye bağlamak")
         self.assertEqual(normalize("PDF'i aç"), "pe de feyi aç")
         self.assertEqual(normalize("Ankara'ya, İstanbul'a"), "Ankaraya, İstanbula")      # doğru yazım değişmez
 
@@ -141,7 +141,7 @@ class Teknik(unittest.TestCase):
         self.assertEqual(normalize("2,5–5 katı"), "iki virgül beş ile beş katı")
 
     def test_cumle_sonu_noktali_ondalik(self):
-        self.assertEqual(normalize("Lisans ODbL 1.0."), "Lisans o de be le bir nokta sıfır.")
+        self.assertEqual(normalize("Lisans ODbL 1.0."), "Lisans odebele bir nokta sıfır.")
         self.assertEqual(normalize("Toplam 1.250."), "Toplam bin iki yüz elli.")          # binlik kalır
 
     def test_sifirla_biten_noktali_sayi_surum(self):
@@ -149,7 +149,7 @@ class Teknik(unittest.TestCase):
         self.assertEqual(normalize("oran 0.75 ve 3.5 kat"), "oran sıfır virgül yetmiş beş ve üç virgül beş kat")
 
     def test_karisik_kisaltma_ve_paket_adlari(self):
-        self.assertEqual(normalize("PhD ve PyPI"), "pe he de ve pay pi ay")
+        self.assertEqual(normalize("PhD ve PyPI"), "pehede ve pay pi ay")
         self.assertEqual(normalize("turkce-uslup ve turkce-tts-sinav"), "türkçe üslup ve türkçe te te se sınav")
 
     def test_kucuk_harfle_devam_eden_cumle_bolunmez(self):
@@ -158,7 +158,7 @@ class Teknik(unittest.TestCase):
                          ['"1.250,50 ₺", "XX. yüzyıl" gibi gösterimler okunur.', "Sonra biter."])
 
     def test_iban_ve_roma_bozulmaz(self):
-        self.assertTrue(normalize("TR33 0006 1005 1978 6457 8413 26").startswith("te re üç üç"))
+        self.assertTrue(normalize("TR33 0006 1005 1978 6457 8413 26").startswith("tere üç üç"))
         self.assertEqual(normalize("XX. yüzyıl"), "yirminci yüzyıl")
 
 

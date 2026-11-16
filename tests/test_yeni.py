@@ -33,12 +33,12 @@ class RomaRakamlari(unittest.TestCase):
     def test_yanlis_pozitif_yok(self):
         # Soru eki, disk, isim baş harfi, noktasız kullanım
         self.assertEqual(normalize("GELDİ MI. Evet."), "GELDİ MI. Evet.")
-        self.assertEqual(normalize("Bu bir CD. Sonra bakarız."), "Bu bir ce de. Sonra bakarız.")
+        self.assertEqual(normalize("Bu bir CD. Sonra bakarız."), "Bu bir cede. Sonra bakarız.")
         self.assertEqual(normalize("Mehmet V. Delibaş geldi."), "Mehmet V. Delibaş geldi.")
         self.assertEqual(normalize("DİL. sonra", kisaltma_harf_harf=False), "DİL. sonra")  # İ Roma harfi değil
         self.assertEqual(normalize("Bölüm IIII. kısım"), "Bölüm IIII. kısım")  # geçersiz Roma rakamı
         # Büyük harfli kelime ardından yalnızca küçük, hükümdar sırası gibi sayılar
-        self.assertEqual(normalize("Not: MD. Ahmet"), "Not: me de. Ahmet")  # sıra sayısı değil, kısaltma
+        self.assertEqual(normalize("Not: MD. Ahmet"), "Not: mede. Ahmet")  # sıra sayısı değil, kısaltma
 
 
 class Kesirler(unittest.TestCase):
@@ -110,23 +110,30 @@ class Araliklar(unittest.TestCase):
         self.assertEqual(normalize("0212-555-44-33"),
                          "sıfır iki bir iki beş beş beş dört dört üç üç")
         self.assertEqual(normalize("Skor 3-1 bitti."), "Skor üç bir bitti.")       # a ≥ b: aralık değil
-        self.assertRegex(normalize("TR33 0006 1005 9700 6410 0000 01"), r"^te re üç üç sıfır")
+        self.assertRegex(normalize("TR33 0006 1005 9700 6410 0000 01"), r"^tere üç üç sıfır")
         self.assertEqual(normalize("Pafta G22-b-14c-2d"), "Pafta ge yirmi iki be on dört ce iki de")
 
 
 class Kisaltmalar(unittest.TestCase):
     def test_harf_harf(self):
-        self.assertEqual(normalize("TBMM toplandı."), "te be me me toplandı.")
-        self.assertEqual(normalize("TRT haberleri"), "te re te haberleri")
-        self.assertEqual(normalize("AKP ve CHP"), "a ka pe ve ce he pe")
-        self.assertEqual(normalize("ÖSYM sınavı"), "ö se ye me sınavı")
-        self.assertEqual(normalize("ĞÜŞ"), "yumuşak ge ü şe")
+        self.assertEqual(normalize("TBMM toplandı."), "tebememe toplandı.")
+        self.assertEqual(normalize("TRT haberleri"), "terete haberleri")
+        self.assertEqual(normalize("AKP ve CHP"), "akape ve cehepe")
+        self.assertEqual(normalize("ÖSYM sınavı"), "öseyeme sınavı")
+        self.assertEqual(normalize("ĞÜŞ"), "yumuşak ge üşe")
+
+    def test_harfleri_oku_bitisik(self):
+        from turkce_normalize import harfleri_oku
+        self.assertEqual(harfleri_oku("TBMM"), "tebememe")
+        self.assertEqual(harfleri_oku("TR"), "tere")
+        self.assertEqual(harfleri_oku("XQ"), "iks kü")          # ünsüzle biten harf adından sonra ayrılır
+        self.assertEqual(harfleri_oku("AĞ"), "a yumuşak ge")    # iki sözcüklü harf adı ayrı
         self.assertEqual(normalize("WWF ve XQ"), "çift ve çift ve fe ve iks kü")
 
     def test_ek_okunusa_baglanir(self):
-        self.assertEqual(normalize("TBMM'de oylama"), "te be me mede oylama")
-        self.assertEqual(normalize("ABD'li yetkili"), "a be deli yetkili")
-        self.assertEqual(normalize("TBMM'DE"), "te be me mede")
+        self.assertEqual(normalize("TBMM'de oylama"), "tebememede oylama")
+        self.assertEqual(normalize("ABD'li yetkili"), "abedeli yetkili")
+        self.assertEqual(normalize("TBMM'DE"), "tebememede")
 
     def test_kelime_gibi_okunanlar(self):
         self.assertEqual(normalize("NATO'ya katıldı."), "natoya katıldı.")
@@ -149,19 +156,19 @@ class Kisaltmalar(unittest.TestCase):
 class EpostaVeAdres(unittest.TestCase):
     def test_eposta(self):
         self.assertEqual(normalize("ali.veli@ornek.com.tr"),
-                         "ali nokta veli et ornek nokta com nokta te re")
+                         "ali nokta veli et ornek nokta com nokta tere")
         self.assertEqual(normalize("Yazın: destek_2@site.org."),
                          "Yazın: destek alt çizgi iki et site nokta org.")
 
     def test_url(self):
         self.assertEqual(normalize("https://www.ornek.gov.tr/harita"),
-                         "ornek nokta gov nokta te re bölü harita")
+                         "ornek nokta gov nokta tere bölü harita")
         self.assertEqual(normalize("Bkz. http://site.com/a/b-c?x=1&y=2."),
                          "Bkz. site nokta com bölü a bölü b tire c.")
 
     def test_semasiz_alan_adi(self):
         self.assertEqual(normalize("Detay için ornek.com.tr adresine bakın."),
-                         "Detay için ornek nokta com nokta te re adresine bakın.")
+                         "Detay için ornek nokta com nokta tere adresine bakın.")
 
     def test_adres_parcalarina_telaffuz_uygulanir(self):
         # Adres sözlükten ÖNCE parçalanır ("api." kalıbı bozulmaz), parçalar
@@ -173,7 +180,7 @@ class EpostaVeAdres(unittest.TestCase):
     def test_sayi_ve_kisaltma_sanilmaz(self):
         # Noktalı kısaltmalar ve büyük harfli uzantılar alan adı sayılmaz
         self.assertEqual(normalize("vb. şeyler"), "ve benzeri şeyler")
-        self.assertEqual(normalize("ABC A.Ş. merkezi"), "a be ce anonim şirketi merkezi")
+        self.assertEqual(normalize("ABC A.Ş. merkezi"), "abece anonim şirketi merkezi")
         self.assertEqual(normalize("Oraya gittim.De ki"), "Oraya gittim.De ki")
 
 
@@ -242,7 +249,7 @@ class Eklenenler(unittest.TestCase):
     """03.10: K "ka", ekli kesir, noktalı ondalık/saat, sürüm, 24/7, skor, ISO ve tireli tarih."""
 
     def test_k_harfi(self):
-        self.assertEqual(normalize("PKK ve TDK"), "pe ka ka ve te de ka")
+        self.assertEqual(normalize("PKK ve TDK"), "pekaka ve tedeka")
 
     def test_ekli_kesir(self):
         self.assertEqual(normalize("Pastanın 1/2'si, 1/4'ü ve 3/4'ü kaldı."),
