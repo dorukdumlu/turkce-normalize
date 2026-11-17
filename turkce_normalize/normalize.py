@@ -41,7 +41,7 @@ from typing import Optional
 from .cografi import cografi_uygula
 from .sayilar import (
     bulunma_eki, harf_oku, harfleri_oku, ondalik_oku, rakamlari_tek_tek, sayi_oku,
-    saat_oku, sayiyi_coz, sira_oku, tam_sayi_oku, turkce_kucuk,
+    eki_uydur, roma_coz, roma_ekli_oku, saat_oku, sayiyi_coz, sira_oku, tam_sayi_oku, turkce_kucuk,
 )
 from .teknik import TEKNIK_KISALTMALAR, okunabilir, teknik_uygula
 from .telaffuz import VARSAYILAN_SOZLUK, TelaffuzSozlugu, telaffuz_uygula
@@ -430,29 +430,6 @@ _SOZLUK_DESENLERI = [
 ]
 
 
-def eki_uydur(kelime: str, ek: str) -> str:
-    """Eki kelimeye ünlü ve ünsüz uyumuyla uydurur: ("lira", "den") -> "dan", ("kuruş", "den") -> "tan",
-    ("kuruş", "yi") -> "u" (ünsüzle biten kelimede kaynaştırma harfi düşer), ("lira", "lik") -> "lık"."""
-    ek = turkce_kucuk(ek)
-    son = next((c for c in reversed(kelime) if c in _UNLU), "e")
-    kalin, yuvarlak = son in "aıou", son in "oöuü"
-    if kelime[-1] not in _UNLU:
-        if len(ek) > 1 and ek[0] in "yns" and ek[1] in _UNLU:
-            ek = ek[1:]
-        if kelime[-1] in "fstkçşhp" and ek[0] in "dc":
-            ek = {"d": "t", "c": "ç"}[ek[0]] + ek[1:]
-    cikti = []
-    for h in ek:
-        if h in "ea":
-            h, yuvarlak = ("a" if kalin else "e"), False
-        elif h in "ıiuü":
-            h = {(True, True): "u", (True, False): "ı", (False, True): "ü", (False, False): "i"}[(kalin, yuvarlak)]
-        elif h in "oö":
-            kalin, yuvarlak = h == "o", True
-        cikti.append(h)
-    return "".join(cikti)
-
-
 def _para_oku(e: re.Match) -> str:
     cikti = f"{sayi_oku(sayiyi_coz(e.group(1)))} lira"
     kurus, ek = e.group(2), e.group(3)
@@ -476,18 +453,15 @@ _ROMA = re.compile(
     r"(?<![\w.])(?=[MDCLXVI])(M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))"
     r"\.(?=\s+([^\W\d_]))"
 )
-_ROMA_DEGER = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
 _ONCEKI_KELIME = re.compile(r"([^\W\d_]+)\s+$")
-
-
-def roma_coz(rakam: str) -> int:
-    """"XIV" -> 14. Geçerlilik denetimi yapmaz; desen zaten yalnızca geçerlileri yakalar."""
-    toplam = 0
-    for i, h in enumerate(rakam):
-        deger = _ROMA_DEGER[h]
-        sonraki = _ROMA_DEGER[rakam[i + 1]] if i + 1 < len(rakam) else 0
-        toplam += -deger if deger < sonraki else deger
-    return toplam
+# Ekli ya da yalın Roma rakamı ("IV'e", "Louis XIV'ün", "Bölüm III'te", "Henri IV"; 17.11.2026: olduğu gibi kalıp
+# harf harf okunuyordu). Bölüm sözcüğünden sonra asıl sayı, özel addan sonra sıra sayısı; bağlamsız yalnız ekli ve
+# iki harften uzun olan (asıl sayı). Tek harf yalnız bölüm sözcüğünden sonra ("X'e", "Plan X" dokunulmaz).
+_ROMA_YALIN = re.compile(r"(?<![\w.])([IVXL]+)(?:['’]([a-zçğıöşü]+))?(?![\w'’])")
+_ROMA_GECERLI = re.compile(r"(?:XL|L?X{0,3})(?:IX|IV|V?I{0,3})")
+ROMA_BOLUM = {"bölüm", "ek", "madde", "cilt", "kısım", "tablo", "şekil", "fıkra", "bent", "faz", "aşama", "evre",
+              "sınıf", "kat", "grup", "seviye", "düzey", "derece", "tip", "tür", "sayı", "ünite", "kitap", "sezon",
+              "perde", "sahne", "yasa", "kanun", "devre", "dönem"}
 
 
 def _roma_oku(e: re.Match) -> str:
@@ -506,6 +480,19 @@ def _roma_oku(e: re.Match) -> str:
                 return e.group(0)                    # "Mehmet V. Delibaş": baş harf
         return sira_oku(deger)
     return e.group(0)
+
+
+def _roma_yalin_oku(e: re.Match) -> str:
+    rakam, ek = e.group(1), e.group(2) or ""
+    if rakam in ROMA_KARA_LISTE or not _ROMA_GECERLI.fullmatch(rakam):
+        return e.group(0)
+    onceki = _ONCEKI_TOKEN.search(_oncesi(e))
+    o = onceki.group(1) if onceki else ""
+    bolum = turkce_kucuk(o) in ROMA_BOLUM
+    ad = o[:1].isupper() and not bolum and len(rakam) > 1
+    if not (bolum or ad or (ek and len(rakam) > 1)):
+        return e.group(0)
+    return roma_ekli_oku(roma_coz(rakam), ek, sira=ad)
 
 
 # --------------------------------------------------------------------------
@@ -665,6 +652,7 @@ def normalize(
     # 15) Roma rakamları — "XX. yüzyıl", "II. Abdülhamit". Harf harf kısaltma
     #     kuralından önce, yoksa "XX" "iks iks" olur.
     m = _ROMA.sub(_roma_oku, m)
+    m = _ROMA_YALIN.sub(_roma_yalin_oku, m)          # "IV'e", "Louis XIV'ün", "Bölüm III'te"
 
     # 16) Büyük harfli kısaltmalar — sözlükteki kısaltmalardan (KDV, TL) sonra
     if kisaltma_harf_harf:
@@ -685,6 +673,8 @@ def normalize(
     #     ek gelmişse kaynaştırma harfi girer ("PDF'i" → "pe de feyi"; doğru yazılmış ekte zaten var: "Ankara'ya")
     m = _UNLU_KESME_UNLU.sub(lambda e: e.group(1) + eki_uydur(e.group(1), "y" + e.group(2))
                              if turkce_kucuk(e.group(1)[-1]) in _UNLU else e.group(0), m)
+    # sayı adlarından yalnız "dört" yumuşar: "4'e" → "dörde", "%14'ü" → "yüzde on dördü" (önceden "dörte", 17.11.2026)
+    m = re.sub(r"\b([Dd])ört['’](?=[aeıioöuü])", r"\1örd", m)
     m = _KESME.sub("", m)
 
     return re.sub(r"\s{2,}", " ", m).strip()

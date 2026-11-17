@@ -277,6 +277,9 @@ Sıra rastgele değildir; bütün bir birim olan gösterimler sayı kurallarınd
   ayırıcılı sayı ve `/`den sonraki gün-ay (`15/03`) değişmez.
 - Sıra sayısı ve Roma rakamı için ardından bir kelime gelmesi gerekir; cümle
   sonundaki `XIV.` dokunulmaz.
+- Ekli ya da yalın Roma rakamı: bölüm sözcüğünden sonra asıl sayı (`Bölüm III'te` → Bölüm üçte), özel
+  addan sonra sıra sayısı (`Louis XIV'ün` → Lui on dördüncünün); bağlamsız ekli olan asıl sayı (`IV'e` →
+  dörde). Tek harfli bağlamsız rakam (`X'e`) dokunulmaz.
 - Cümle başındaki büyük harf, dönüştürülen kelimeyle birlikte kaybolur
   (`XX. yüzyıl` → yirminci yüzyıl).
 - Büyük harfli kısaltma tespiti sezgiseldir: listede olmayan 2–5 harfli büyük

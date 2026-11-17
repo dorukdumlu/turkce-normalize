@@ -148,7 +148,7 @@ class Kisaltmalar(unittest.TestCase):
         self.assertEqual(normalize("UYARI: kapı açık"), "UYARI: kapı açık")
         self.assertEqual(normalize("GELDİ MI?"), "GELDİ MI?")
         self.assertEqual(normalize("ANKARA büyükşehir"), "ANKARA büyükşehir")    # 6+ harf
-        self.assertEqual(normalize("Henry VIII"), "Henry VIII")                 # Roma rakamı
+        self.assertEqual(normalize("Henry VIII"), "Henry sekizinci")            # Roma rakamı harf harf okunmaz
         self.assertEqual(normalize("APIyi çağır"), "APIyi çağır")               # ek almış kelime
         self.assertEqual(normalize("TBMM", kisaltma_harf_harf=False), "TBMM")
 
@@ -341,6 +341,30 @@ class SaatVeSifir(unittest.TestCase):
         self.assertEqual(normalize("0 hata"), "sıfır hata")
         self.assertEqual(normalize("1.275 TL"), "bin iki yüz yetmiş beş lira")
         self.assertEqual(normalize("15/03 tarihinde"), "on beş/üç tarihinde")
+
+    def test_dort_yumusar(self):
+        # sayı adlarından yalnız "dört" ünlüyle başlayan ekte yumuşar (önceden "dörte", "dörtü")
+        self.assertEqual(normalize("4'e"), "dörde")
+        self.assertEqual(normalize("%14'ü"), "yüzde on dördü")
+        self.assertEqual(normalize("3.14'e"), "üç virgül on dörde")
+        self.assertEqual(normalize("104'ü"), "yüz dördü")
+        self.assertEqual(normalize("4'te"), "dörtte")
+        self.assertEqual(normalize("40'a"), "kırka")
+        self.assertEqual(normalize("3'e"), "üçe")
+
+    def test_ekli_ve_yalin_roma(self):
+        # önceden olduğu gibi kalıyordu ("IVe", "XIVün"); bölüm sözcüğünden sonra asıl, özel addan sonra sıra sayısı
+        self.assertEqual(normalize("IV'e kadar"), "dörde kadar")
+        self.assertEqual(normalize("Bölüm III'te"), "Bölüm üçte")
+        self.assertEqual(normalize("Faz II'ye geçtik."), "Faz ikiye geçtik.")
+        self.assertEqual(normalize("Tip II diyabet"), "Tip iki diyabet")
+        self.assertEqual(normalize("Louis XIV'ün sarayı"), "Lui on dördüncünün sarayı")
+        self.assertEqual(normalize("Murat IV'ü"), "Murat dördüncüyü")
+        self.assertEqual(normalize("Henri IV geldi."), "Henri dördüncü geldi.")
+        # dokunulmaz: tek harf bağlamsız, kara liste, noktalı baş harf
+        self.assertEqual(normalize("X'e oy"), "Xe oy")
+        self.assertEqual(normalize("CV'ni gönder"), "ceveni gönder")
+        self.assertEqual(normalize("Mehmet V. Delibaş"), "Mehmet V. Delibaş")
 
     def test_gram_birimleri(self):
         self.assertEqual(normalize("250 g un"), "iki yüz elli gram un")

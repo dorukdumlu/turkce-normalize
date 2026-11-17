@@ -1,5 +1,16 @@
 # Değişiklikler
 
+## 0.1.7 — "dört" yumuşar, ekli Roma rakamı
+
+- Ünlüyle başlayan ekte "dört" "dörd" olur: `4'e` → "dörde", `%14'ü` → "yüzde on dördü", `3.14'e` → "üç virgül on
+  dörde", `104'ü` → "yüz dördü" (önceden "dörte", "dörtü"). Sayı adlarından yalnız "dört" yumuşar ("kırka", "üçe").
+- Ekli ve yalın Roma rakamı okunur (önceden olduğu gibi kalıp harf harf okunuyordu: "IVe", "XIVün"). Bölüm, madde,
+  ek, cilt, faz, tip… sözcüğünden sonra asıl sayı (`Bölüm III'te` → "Bölüm üçte", `Tip II` → "Tip iki"), özel addan
+  sonra sıra sayısı (`Louis XIV'ün` → "Lui on dördüncünün", `Henri IV` → "Henri dördüncü"), bağlamsız ekli olan asıl
+  sayı (`IV'e` → "dörde"). Tek harfli bağlamsız rakam (`X'e`) ve kara listedekiler (`CV`, `MI`) dokunulmaz.
+- Yeni: `roma_ekli_oku(deger, ek, sira)`, `ROMA_BOLUM`; `eki_uydur` ve `roma_coz` sayilar.py'ye taşındı (eski yoldan
+  da alınır).
+
 ## 0.1.6 — alan adı, saat, baştaki sıfır
 
 - Alan adı uzantısının yerleşik okunuşu: `github.com` → "githab nokta kom" (Türkçe harflerle "com" okunuyor, ses

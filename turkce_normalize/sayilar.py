@@ -191,6 +191,61 @@ def tam_sayi_oku(sayi: str, sifir_oku: bool = True) -> str:
     return sayi_oku(sayiyi_coz(sayi))
 
 
+_UNLULER = "aeıioöuü"
+_ROMA_DEGER = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
+
+
+def roma_coz(rakam: str) -> int:
+    """"XIV" -> 14. Geçerlilik denetimi yapmaz; desen zaten yalnızca geçerlileri yakalar."""
+    toplam = 0
+    for i, h in enumerate(rakam):
+        deger = _ROMA_DEGER[h]
+        sonraki = _ROMA_DEGER[rakam[i + 1]] if i + 1 < len(rakam) else 0
+        toplam += -deger if deger < sonraki else deger
+    return toplam
+
+
+def eki_uydur(kelime: str, ek: str) -> str:
+    """Eki kelimeye ünlü ve ünsüz uyumuyla uydurur: ("lira", "den") -> "dan", ("kuruş", "den") -> "tan",
+    ("kuruş", "yi") -> "u" (ünsüzle biten kelimede kaynaştırma harfi düşer), ("lira", "lik") -> "lık"."""
+    ek = turkce_kucuk(ek)
+    son = next((c for c in reversed(kelime) if c in _UNLULER), "e")
+    kalin, yuvarlak = son in "aıou", son in "oöuü"
+    if kelime[-1] not in _UNLULER:
+        if len(ek) > 1 and ek[0] in "yns" and ek[1] in _UNLULER:
+            ek = ek[1:]
+        if kelime[-1] in "fstkçşhp" and ek[0] in "dc":
+            ek = {"d": "t", "c": "ç"}[ek[0]] + ek[1:]
+    cikti = []
+    for h in ek:
+        if h in "ea":
+            h, yuvarlak = ("a" if kalin else "e"), False
+        elif h in "ıiuü":
+            h = {(True, True): "u", (True, False): "ı", (False, True): "ü", (False, False): "i"}[(kalin, yuvarlak)]
+        elif h in "oö":
+            kalin, yuvarlak = h == "o", True
+        cikti.append(h)
+    return "".join(cikti)
+
+
+def roma_ekli_oku(deger: int, ek: str = "", sira: bool = False) -> str:
+    """Roma rakamının değeri + kesmeden sonraki ek: (4, "e") -> "dörde", (3, "te") -> "üçte", (14, "ün", sira=True) ->
+    "on dördüncünün". Ünlüyle biten okunuşa ünlüyle başlayan ek: ilgi eki "n", ötekiler "y" alır; ünlüden sonra
+    "t" "d" olur; "dört" yumuşar."""
+    okunus = sira_oku(deger) if sira else sayi_oku(deger)
+    ek = turkce_kucuk(ek)
+    if not ek:
+        return okunus
+    if okunus[-1] in _UNLULER:
+        if ek[0] in _UNLULER:
+            ek = ("n" if re.match(r"[ıiuü]n(?![aeıioöuü])", ek) else "y") + ek
+        elif ek[0] in "tç":
+            ek = {"t": "d", "ç": "c"}[ek[0]] + ek[1:]
+    elif okunus.endswith("dört") and ek[0] in _UNLULER:
+        okunus = okunus[:-1] + "d"
+    return okunus + eki_uydur(okunus.split()[-1], ek)
+
+
 #: Kalın ünlüler — ek uyumu için.
 _KALIN = set("aıou")
 _INCE = set("eiöü")

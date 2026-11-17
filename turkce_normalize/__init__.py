@@ -22,13 +22,13 @@ from .normalize import (
     normalize, roma_coz, simgeleri_oku,
 )
 from .sayilar import (
-    HARF_OKUNUSU, bulunma_eki, harf_oku, harfleri_oku, ondalik_oku, rakamlari_tek_tek, saat_oku, tam_sayi_oku,
-    sayi_oku, sayiyi_coz, sira_oku, turkce_buyuk, turkce_kucuk,
+    HARF_OKUNUSU, bulunma_eki, harf_oku, harfleri_oku, ondalik_oku, rakamlari_tek_tek, roma_ekli_oku, saat_oku,
+    sayi_oku, sayiyi_coz, sira_oku, tam_sayi_oku, turkce_buyuk, turkce_kucuk,
 )
 from .teknik import BIRIM_OKUNUSU, TEKNIK_KISALTMALAR, TEKNIK_TERIMLER, teknik_uygula
 from .telaffuz import CBS_TERIMLERI, VARSAYILAN_SOZLUK, YABANCI_ADLAR, sozluk_birlestir, telaffuz_uygula
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"
 
 __all__ = [
     "normalize",
@@ -38,7 +38,7 @@ __all__ = [
     "teknik_uygula", "TEKNIK_KISALTMALAR", "TEKNIK_TERIMLER", "BIRIM_OKUNUSU",
     # sayılar
     "sayi_oku", "sira_oku", "ondalik_oku", "rakamlari_tek_tek", "sayiyi_coz",
-    "bulunma_eki", "harf_oku", "harfleri_oku", "saat_oku", "tam_sayi_oku", "turkce_buyuk", "turkce_kucuk", "HARF_OKUNUSU",
+    "bulunma_eki", "harf_oku", "harfleri_oku", "roma_ekli_oku", "saat_oku", "tam_sayi_oku", "turkce_buyuk", "turkce_kucuk", "HARF_OKUNUSU",
     # alt adımlar
     "cografi_uygula", "telaffuz_uygula", "eposta_ve_adres_oku", "simgeleri_oku",
     "kesirleri_oku", "araliklari_oku", "kisaltmalari_oku", "roma_coz",
