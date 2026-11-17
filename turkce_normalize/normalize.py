@@ -41,7 +41,7 @@ from typing import Optional
 from .cografi import cografi_uygula
 from .sayilar import (
     bulunma_eki, harf_oku, harfleri_oku, ondalik_oku, rakamlari_tek_tek, sayi_oku,
-    sayiyi_coz, sira_oku, turkce_kucuk,
+    saat_oku, sayiyi_coz, sira_oku, tam_sayi_oku, turkce_kucuk,
 )
 from .teknik import TEKNIK_KISALTMALAR, okunabilir, teknik_uygula
 from .telaffuz import VARSAYILAN_SOZLUK, TelaffuzSozlugu, telaffuz_uygula
@@ -181,19 +181,26 @@ def _parca_oku(parca: str) -> str:
             kelimeler.append(sayi_oku(oge) if kisa else rakamlari_tek_tek(oge))
         elif oge in _AYRAC_OKUNUSU:
             kelimeler.append(_AYRAC_OKUNUSU[oge])
-        elif oge[0].isalpha():
-            kelimeler.append(turkce_kucuk(oge))
+        elif oge[0].isalpha():          # ünlüsüz parça ("seslen-tr") harf harf; sözlükteki ("pdf") sözlükten okunur
+            k = turkce_kucuk(oge)
+            kelimeler.append(k if any(c in "aeıioöuü" for c in k) or k in VARSAYILAN_SOZLUK else _harf_harf(k))
         # tanınmayan işaretler sessizce düşer
     return " ".join(kelimeler)
 
 
+#: Yerleşik okunuşu olan uzantılar (Türkçe harflerle "com" "com" okunuyordu, 17.11.2026)
+_UZANTI_OKUNUSU = {"com": "kom", "io": "ay o", "ai": "ey ay", "app": "ep"}
+
+
 def _alan_adi_oku(alan: str) -> str:
-    """"ornek.com.tr" -> "ornek nokta com nokta tere". İki harfli ülke uzantısı harf harf."""
+    """"ornek.com.tr" -> "ornek nokta kom nokta tere". İki harfli ülke uzantısı harf harf."""
     alan, _, port = alan.partition(":")
     etiketler = alan.split(".")
     okunus = []
     for i, etiket in enumerate(etiketler):
-        if i == len(etiketler) - 1 and len(etiket) == 2 and etiket.isalpha():
+        if i and etiket in _UZANTI_OKUNUSU:
+            okunus.append(_UZANTI_OKUNUSU[etiket])
+        elif i == len(etiketler) - 1 and len(etiket) == 2 and etiket.isalpha():
             okunus.append(_harf_harf(etiket))
         else:
             okunus.append(_parca_oku(etiket))
@@ -230,7 +237,7 @@ def _url_degistir(e: re.Match) -> str:
 def eposta_ve_adres_oku(metin: str) -> str:
     """E-posta ve web adreslerini okunur hale getirir.
 
-    "ali.veli@ornek.com.tr" -> "ali nokta veli et ornek nokta com nokta tere"
+    "ali.veli@ornek.com.tr" -> "ali nokta veli et ornek nokta kom nokta tere"
     "https://www.ornek.gov.tr/harita" -> "ornek nokta gov nokta tere bölü harita"
     """
     m = _EPOSTA.sub(
@@ -280,6 +287,10 @@ _TARIH = re.compile(r"\b(\d{1,2})([./-])(\d{1,2})\2(\d{4})\b", _A)   # 15.03.202
 _ISO_TARIH = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b", _A)              # 2026-03-15
 # Türkçede saat sık sık noktayla yazılır: "saat 14.30". Yalnız "saat" sözcüğünden sonra (3.14 ondalıktır).
 _SAAT_NOKTALI = re.compile(r"(?<=\b[Ss]aat )([01]?\d|2[0-3])\.([0-5]\d)\b")
+# "saat" sözcüğü olmadan: ardında zaman eki olan ("06.45'te", "10.00'a") ya da sıfırla başlayan ("06.45") noktalı
+# saat; yoksa ondalık okunuyordu ("altı virgül kırk beşte", 17.11.2026). Saat iki haneli: "3.14'e" ondalık kalır.
+_SAAT_NOKTALI_EKLI = re.compile(r"(?<![\d.,])([01]\d|2[0-3])\.([0-5]\d)(?=['’](?:[dt][ae]|y?[ae]))")
+_SAAT_SIFIRLI = re.compile(r"(?<![\d.,])(0\d)\.([0-5]\d)(?!\d|[.,]\d)")
 # Sürüm numarası: noktalı ve en az üç grup; grupların hepsi üç rakamlı değilse binlik değildir ("1.2.3").
 _SURUM = re.compile(r"(?<![\d.,])\d+(?:\.\d+){2,}(?![\d.])", _A)
 # İngilizce usulü ondalık nokta: ardında tam 3 rakam yoksa binlik ayırıcı değildir ("3.5", "2.75").
@@ -315,15 +326,7 @@ def _iso_tarih_oku(e: re.Match) -> str:
 
 
 def _saat_oku(e: re.Match) -> str:
-    # 14:30 -> "on dört otuz", 14:05 -> "on dört sıfır beş", 09:00 -> "dokuz".
-    # Tek haneli dakikada "sıfır" şart: 10:01 aksi halde "on bir" okunur, yani saat 11.
-    saat = "sıfır sıfır" if int(e.group(1)) == 0 else sayi_oku(e.group(1))
-    dakika = int(e.group(2))
-    if dakika == 0:
-        return saat                                  # 09:00 -> "dokuz", ekiyle "dokuzda"
-    if dakika < 10:
-        return f"{saat} sıfır {sayi_oku(dakika)}"    # 14:05 -> "on dört sıfır beş"
-    return f"{saat} {sayi_oku(dakika)}"              # 14:30 -> "on dört otuz"
+    return saat_oku(e.group(1), e.group(2))         # 14:30 -> "on dört otuz" (bkz. sayilar.saat_oku)
 
 
 # --------------------------------------------------------------------------
@@ -634,6 +637,7 @@ def normalize(
     m = _TARIH.sub(_tarih_oku, m)                    # 15.03.2026 / 15/03/2026 / 15-03-2026
     m = _SAAT.sub(_saat_oku, m)
     m = _SAAT_NOKTALI.sub(_saat_oku, m)              # "saat 14.30"
+    m = _SAAT_SIFIRLI.sub(_saat_oku, _SAAT_NOKTALI_EKLI.sub(_saat_oku, m))     # "06.45'te", "06.45"
 
     # 8) Simgeler — "2+2", "=", "&", "±", "45°"
     m = simgeleri_oku(m)
@@ -675,7 +679,7 @@ def normalize(
     m = _NOKTALI_ONDALIK.sub(lambda e: ondalik_oku(int(e.group(1)), e.group(2)), m)
 
     # 19) Kalan tam sayılar — 1.250 / 42
-    m = _TAM_SAYI.sub(lambda e: sayi_oku(sayiyi_coz(re.sub(r"\.$", "", e.group(0)))), m)
+    m = _TAM_SAYI.sub(lambda e: tam_sayi_oku(e.group(0), e.string[e.start() - 1:e.start()] != "/"), m)   # "042"
 
     # 20) Kesme işaretini kaldır — "14:30'da" -> "on dört otuzda". Okunuşu ünlüyle biten yazıma ünlüyle başlayan
     #     ek gelmişse kaynaştırma harfi girer ("PDF'i" → "pe de feyi"; doğru yazılmış ekte zaten var: "Ankara'ya")

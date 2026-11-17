@@ -1,5 +1,18 @@
 # Değişiklikler
 
+## 0.1.6 — alan adı, saat, baştaki sıfır
+
+- Alan adı uzantısının yerleşik okunuşu: `github.com` → "githab nokta kom" (Türkçe harflerle "com" okunuyor, ses
+  modeli "c"yi "dʒ" söylüyordu: "noktacağım"); `.io` → "ay o", `.ai` → "ey ay", `.app` → "ep". Adresteki ünsüzlü parça
+  harf harf (`seslen-tr` → "seslen tire tere", `b-c` → "be tire ce"; önceden "tr", "b" okunamıyordu).
+- Noktalı saat "saat" sözcüğü olmadan da: ardında zaman eki olan (`06.45'te` → "altı kırk beşte", `12.30'da` → "on
+  iki otuzda", `10.00'a` → "ona") ya da sıfırla başlayan (`06.45`) saat; önceden ondalık okunuyordu ("altı virgül
+  kırk beşte"). Tek haneli saat ondalık kalır (`3.14'e`).
+- Baştaki sıfır okunur: `TR-042` → "tere sıfır kırk iki", `007` → "sıfır sıfır yedi" (önceden "kırk iki", "yedi").
+- Birim: `g` → gram, `mg` → miligram, `ml` → mililitre (`250 g un` önceden "ge un").
+- Teknik terim: MediaSpeech → "midiya spiç".
+- Yeni: `saat_oku(saat, dakika)`, `tam_sayi_oku(sayi)` (sayilar).
+
 ## 0.1.5 — kısaltmalar bitişik okunur
 
 - Harf harf okunan kısaltma tek sözcük gibi bitişik yazılır: `TBMM'de` → "tebememede", `TR` → "tere", `CBS'e` →

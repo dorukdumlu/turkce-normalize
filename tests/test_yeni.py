@@ -156,7 +156,7 @@ class Kisaltmalar(unittest.TestCase):
 class EpostaVeAdres(unittest.TestCase):
     def test_eposta(self):
         self.assertEqual(normalize("ali.veli@ornek.com.tr"),
-                         "ali nokta veli et ornek nokta com nokta tere")
+                         "ali nokta veli et ornek nokta kom nokta tere")
         self.assertEqual(normalize("Yazın: destek_2@site.org."),
                          "Yazın: destek alt çizgi iki et site nokta org.")
 
@@ -164,18 +164,25 @@ class EpostaVeAdres(unittest.TestCase):
         self.assertEqual(normalize("https://www.ornek.gov.tr/harita"),
                          "ornek nokta gov nokta tere bölü harita")
         self.assertEqual(normalize("Bkz. http://site.com/a/b-c?x=1&y=2."),
-                         "Bkz. site nokta com bölü a bölü b tire c.")
+                         "Bkz. site nokta kom bölü a bölü be tire ce.")
 
     def test_semasiz_alan_adi(self):
         self.assertEqual(normalize("Detay için ornek.com.tr adresine bakın."),
-                         "Detay için ornek nokta com nokta tere adresine bakın.")
+                         "Detay için ornek nokta kom nokta tere adresine bakın.")
 
     def test_adres_parcalarina_telaffuz_uygulanir(self):
         # Adres sözlükten ÖNCE parçalanır ("api." kalıbı bozulmaz), parçalar
         # sonra sözlükten geçer: "api" -> "ey pi ay", "pdf" -> "pe de fe".
-        self.assertEqual(normalize("api.ornek.com"), "ey pi ay nokta ornek nokta com")
+        self.assertEqual(normalize("api.ornek.com"), "ey pi ay nokta ornek nokta kom")
         self.assertEqual(normalize("https://ornek.com/rapor.pdf"),
-                         "ornek nokta com bölü rapor nokta pe de fe")
+                         "ornek nokta kom bölü rapor nokta pe de fe")
+
+    def test_uzanti_okunusu(self):
+        # "com" Türkçe harflerle okunuyordu (model "c"yi "dʒ" söylüyor, 17.11.2026): yerleşik okunuşlar
+        self.assertEqual(normalize("github.com"), "githab nokta kom")
+        self.assertEqual(normalize("ornek.io ve ornek.ai"), "ornek nokta ay o ve ornek nokta ey ay")
+        # ünlüsüz yol parçası harf harf ("tr" okunamıyordu)
+        self.assertEqual(normalize("github.com/seslen-tr"), "githab nokta kom bölü seslen tire tere")
 
     def test_sayi_ve_kisaltma_sanilmaz(self):
         # Noktalı kısaltmalar ve büyük harfli uzantılar alan adı sayılmaz
@@ -310,3 +317,32 @@ class YabanciAdlar(unittest.TestCase):
     def test_turkce_ad_dokunulmaz(self):
         self.assertEqual(normalize("Can ve Mark geldi."), "Can ve Mark geldi.")
         self.assertEqual(normalize("Billur"), "Billur")       # "bill" sözcük içinde değişmez
+
+
+class SaatVeSifir(unittest.TestCase):
+    """17.11.2026 (Turkish TTS Arena cümleleri): "saat" sözcüğü olmadan noktalı saat ondalık, kodun baştaki sıfırı
+    düşüyordu; g / mg / ml birim okunmuyordu."""
+
+    def test_noktali_saat_ekli_ve_sifirli(self):
+        self.assertEqual(normalize("İlk otobüs 06.45'te kalkar."), "İlk otobüs altı kırk beşte kalkar.")
+        self.assertEqual(normalize("En geç 13.45'te gel."), "En geç on üç kırk beşte gel.")
+        self.assertEqual(normalize("12.30'da buluşalım."), "on iki otuzda buluşalım.")
+        self.assertEqual(normalize("10.00'a kadar açık."), "ona kadar açık.")
+        self.assertEqual(normalize("06.45"), "altı kırk beş")
+
+    def test_ondalik_ve_surum_saat_sanilmaz(self):
+        self.assertEqual(normalize("3.14 sayısı"), "üç virgül on dört sayısı")
+        self.assertEqual(normalize("1.25'e indi."), "bir virgül yirmi beşe indi.")
+        self.assertEqual(normalize("Sürüm 2.75 çıktı."), "Sürüm iki nokta yetmiş beş çıktı.")
+
+    def test_bastaki_sifir(self):
+        self.assertEqual(normalize("TR-042 kodu"), "tere sıfır kırk iki kodu")
+        self.assertEqual(normalize("Kod 007"), "Kod sıfır sıfır yedi")
+        self.assertEqual(normalize("0 hata"), "sıfır hata")
+        self.assertEqual(normalize("1.275 TL"), "bin iki yüz yetmiş beş lira")
+        self.assertEqual(normalize("15/03 tarihinde"), "on beş/üç tarihinde")
+
+    def test_gram_birimleri(self):
+        self.assertEqual(normalize("250 g un"), "iki yüz elli gram un")
+        self.assertEqual(normalize("5 mg"), "beş miligram")
+        self.assertEqual(normalize("200 ml"), "iki yüz mililitre")

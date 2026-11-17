@@ -153,7 +153,7 @@ Eşleşme büyük/küçük harf duyarsızdır; ek almış kelimeler (`APIyi`) b�
 | **Aralık** | `3-5 kişi`, `2020-2025`, `3-5. maddeler` | üç beş kişi, … ile …, üçüncü ile beşinci |
 | **Eksi sayı** | `-5 derece` | eksi beş derece |
 | **Büyük harfli kısaltma** | `TBMM'de`, `CHP`, `NATO` | tebememede, cehepe, nato |
-| **E-posta** | `ali.veli@ornek.com.tr` | ali nokta veli et ornek nokta com nokta tere |
+| **E-posta** | `ali.veli@ornek.com.tr` | ali nokta veli et ornek nokta kom nokta tere |
 | **Web adresi** | `https://www.ornek.gov.tr/harita` | ornek nokta gov nokta tere bölü harita |
 | **Simgeler** | `2+2=4`, `&`, `25°C`, `±0,5` | iki artı iki eşittir dört, ve, yirmi beş derece, artı eksi … |
 | Koordinat | `39.9334, 32.8597` | enlem otuz dokuz virgül dokuz üç üç dört, boylam … |
@@ -270,7 +270,11 @@ Sıra rastgele değildir; bütün bir birim olan gösterimler sayı kurallarınd
 - Nokta, ardından tam üç rakam geliyorsa binlik ayırıcıdır (`3.500` → üç bin beş yüz);
   aksi halde İngilizce usulü ondalık sayılır (`3.5` → üç virgül beş). Üç ve daha fazla
   noktalı grupta üç rakamlı olmayan grup varsa sürüm numarasıdır (`1.2.3` → bir nokta iki
-  nokta üç). Noktalı saat yalnız "saat" sözcüğünden sonra tanınır (`saat 14.30`).
+  nokta üç). Noktalı saat "saat" sözcüğünden sonra (`saat 14.30`), ardında zaman eki
+  varsa (`06.45'te` → altı kırk beşte, `10.00'a` → ona; saat iki haneli) ya da sıfırla başlıyorsa
+  (`06.45`) tanınır.
+- Baştaki sıfır okunur (`TR-042` → tere sıfır kırk iki, `007` → sıfır sıfır yedi); tek `0`, binlik
+  ayırıcılı sayı ve `/`den sonraki gün-ay (`15/03`) değişmez.
 - Sıra sayısı ve Roma rakamı için ardından bir kelime gelmesi gerekir; cümle
   sonundaki `XIV.` dokunulmaz.
 - Cümle başındaki büyük harf, dönüştürülen kelimeyle birlikte kaybolur

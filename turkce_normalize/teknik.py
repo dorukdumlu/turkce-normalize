@@ -40,7 +40,7 @@ TEKNIK_TERIMLER = {
     "machine learning": "maşin lörning", "deepseek": "dipsik", "flash": "fleş", "gemma": "cema", "qwen": "kuven",
     "llama": "lama", "claude": "klod", "gemini": "cemini", "chatgpt": "çet ce pe te", "gpt": "ce pe te",
     "openai": "opın ey ay", "anthropic": "antropik", "hugging face": "haging feys", "huggingface": "haging feys",
-    "whisper": "visper", "next": "nekst", "plus": "plas", "common voice": "komın voys", "voice": "voys", "iot": "ay o ti", "saas": "sas", "lora": "lora", "llms": "el el emler",
+    "whisper": "visper", "next": "nekst", "plus": "plas", "common voice": "komın voys", "voice": "voys", "mediaspeech": "midiya spiç", "iot": "ay o ti", "saas": "sas", "lora": "lora", "llms": "el el emler",
     # yazılım
     "python": "paytın", "pytorch": "paytorç", "github": "githab", "docker": "dokır", "pipeline": "payplayn",
     "framework": "freymvörk", "backend": "bekend", "server": "sörvır", "deploy": "diploy", "open": "opın",
@@ -99,6 +99,7 @@ BIRIM_OKUNUSU = {
     "m": "metre", "kHz": "kilohertz", "Hz": "hertz", "MHz": "megahertz", "GHz": "gigahertz",
     "KB": "kilobayt", "kB": "kilobayt", "MB": "megabayt", "GB": "gigabayt", "TB": "terabayt",
     "ms": "milisaniye", "W": "vat", "kW": "kilovat", "kWh": "kilovatsaat", "MW": "megavat", "mAh": "miliamper saat",
+    "g": "gram", "mg": "miligram", "ml": "mililitre",
     "V": "volt", "dB": "desibel", "fps": "efpiyes", "bit": "bit", "bayt": "bayt", "px": "piksel", "ha": "hektar",
 }
 _BIRIM = re.compile(r"(?<=\d)[ \t]?(" + "|".join(sorted(map(re.escape, BIRIM_OKUNUSU), key=len, reverse=True))

@@ -170,6 +170,27 @@ def sayiyi_coz(s: str) -> int:
     return int(re.sub(r"[.\s]", "", s) or "0")
 
 
+def saat_oku(saat: str, dakika: str) -> str:
+    """("14", "30") -> "on dört otuz", ("14", "05") -> "on dört sıfır beş", ("09", "00") -> "dokuz".
+    Tek haneli dakikada "sıfır" şart: 10:01 aksi halde "on bir" okunur, yani saat 11."""
+    s = "sıfır sıfır" if int(saat) == 0 else sayi_oku(saat)
+    d = int(dakika)
+    if d == 0:
+        return s                                     # 09:00 -> "dokuz", ekiyle "dokuzda"
+    return f"{s} sıfır {sayi_oku(d)}" if d < 10 else f"{s} {sayi_oku(d)}"
+
+
+def tam_sayi_oku(sayi: str, sifir_oku: bool = True) -> str:
+    """"1.250" -> "bin iki yüz elli"; baştaki sıfırlar okunur: "042" -> "sıfır kırk iki", "007" -> "sıfır sıfır
+    yedi" (kod ve numarada sıfır düşüyordu: "TR-042" -> "tere kırk iki", 17.11.2026). Tek "0", binlik ayırıcılı
+    yazım ve sifir_oku=False (normalize: "/"den sonra, "15/03" günü ayı) değişmez."""
+    sayi = re.sub(r"\.$", "", sayi)
+    sifir = len(sayi) - len(sayi.lstrip("0"))
+    if sifir_oku and sifir and len(sayi) > 1 and "." not in sayi:
+        return " ".join(["sıfır"] * sifir + ([sayi_oku(int(sayi[sifir:]))] if sayi[sifir:] else []))
+    return sayi_oku(sayiyi_coz(sayi))
+
+
 #: Kalın ünlüler — ek uyumu için.
 _KALIN = set("aıou")
 _INCE = set("eiöü")

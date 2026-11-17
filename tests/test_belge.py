@@ -82,7 +82,7 @@ class Belge(unittest.TestCase):
 
     def test_semasiz_adresin_yolu_okunmaz(self):
         p = paragraflar("Veri: evren.ssyz.org.tr/users/u43bd0650c87e ve huggingface.co/datasets/mvdelibas/TR-CBS")
-        self.assertEqual(p, ["Veri: evren nokta ssyz nokta org nokta tere ve huggingface nokta ceo."])
+        self.assertEqual(p, ["Veri: evren nokta seseyeze nokta org nokta tere ve huggingface nokta ceo."])
 
     def test_okunur_metin_paragraf_boslugu(self):
         self.assertIn("\n\n", okunur_metin(MAKALE))
