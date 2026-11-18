@@ -301,6 +301,18 @@ class ParaEki(unittest.TestCase):
         self.assertEqual(normalize("Fiyatı 3.499,90 TL'den 2.750 TL'ye düştü."),
                          "Fiyatı üç bin dört yüz doksan dokuz lira doksan kuruştan iki bin yedi yüz elli liraya düştü.")
 
+    def test_noktali_kurus(self):
+        # noktadan sonra 1-2 rakam kuruştur; binlik ayırıcı sanılınca tutar yüz katına çıkıyordu
+        self.assertEqual(normalize("Toplam borcunuz 2450.75 TL."),
+                         "Toplam borcunuz iki bin dört yüz elli lira yetmiş beş kuruş.")
+        self.assertEqual(normalize("12.50₺'den"), "on iki lira elli kuruştan")
+        self.assertEqual(normalize("1.250 TL"), "bin iki yüz elli lira")  # üç rakam binliktir
+
+    def test_tek_haneli_kurus(self):
+        self.assertEqual(normalize("1,5 TL"), "bir lira elli kuruş")
+        self.assertEqual(normalize("1.5 TL"), "bir lira elli kuruş")
+        self.assertEqual(normalize("1,05 TL"), "bir lira beş kuruş")
+
     def test_zaten_uyumlu(self):
         self.assertEqual(normalize("3.500 lira'dan"), "üç bin beş yüz liradan")
 
