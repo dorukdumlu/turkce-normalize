@@ -6,6 +6,8 @@
   "on iki lira elli kuruş" (önceden nokta binlik sanılıyordu: "iki yüz kırk beş bin yetmiş beş lira", "bin iki yüz
   elli lira"). Noktadan sonra üç rakam binlik kalır (`1.250 TL`).
 - Tek haneli kuruş onluktur: `1,5 TL` → "bir lira elli kuruş" (önceden "beş kuruş").
+- Tam kısım sıfırsa lira söylenmez: `0.99 TL` → "doksan dokuz kuruş" (önceden "doksan dokuz lira"), `0,50 TL'ye` →
+  "elli kuruşa". Sınır testleri: `99.9 TL`, `1.250,5 TL`, `12.500 TL`, `1.000.000 TL`.
 
 ## 0.1.7 — "dört" yumuşar, ekli Roma rakamı
 

@@ -313,6 +313,17 @@ class ParaEki(unittest.TestCase):
         self.assertEqual(normalize("1.5 TL"), "bir lira elli kuruş")
         self.assertEqual(normalize("1,05 TL"), "bir lira beş kuruş")
 
+    def test_kurus_sinirlari(self):
+        self.assertEqual(normalize("0.99 TL"), "doksan dokuz kuruş")  # tam kısım sıfırsa lira söylenmez
+        self.assertEqual(normalize("0,50 TL'ye"), "elli kuruşa")
+        self.assertEqual(normalize("0 TL"), "sıfır lira")
+        self.assertEqual(normalize("99.9 TL"), "doksan dokuz lira doksan kuruş")
+        self.assertEqual(normalize("1.250,5 TL"), "bin iki yüz elli lira elli kuruş")
+        # üç rakamlı gruplar binlik kalır
+        self.assertEqual(normalize("1.250 TL"), "bin iki yüz elli lira")
+        self.assertEqual(normalize("12.500 TL"), "on iki bin beş yüz lira")
+        self.assertEqual(normalize("1.000.000 TL"), "bir milyon lira")
+
     def test_zaten_uyumlu(self):
         self.assertEqual(normalize("3.500 lira'dan"), "üç bin beş yüz liradan")
 

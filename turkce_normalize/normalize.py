@@ -441,9 +441,10 @@ def _para_oku(e: re.Match) -> str:
         tam, kurus = noktali.groups()
     if kurus and len(kurus) == 1:
         kurus += "0"  # "1,5 TL" bir lira elli kuruştur, beş kuruş değil
-    cikti = f"{sayi_oku(sayiyi_coz(tam))} lira"
-    if kurus and int(kurus):
-        cikti += f" {sayi_oku(kurus)} kuruş"
+    lira = sayiyi_coz(tam)
+    cikti = f"{sayi_oku(lira)} lira"
+    if kurus and int(kurus):  # "0,99 TL" → "doksan dokuz kuruş" ("sıfır lira" söylenmez)
+        cikti = (f"{cikti} " if lira else "") + f"{sayi_oku(kurus)} kuruş"
     if ek:
         cikti += eki_uydur(cikti.rsplit(" ", 1)[-1], ek)
     return cikti
